@@ -1,7 +1,7 @@
 /* Pomodoro Card */
 
 .pomodoro-card {
-    background-color: #EEE6CE;
+    background-color: white;
     border-radius: 0.5em;
     width: clamp(300px, 30vw, 400px);
     margin: 200px auto;
@@ -22,7 +22,7 @@
 .pomodoro-timer {
     text-align: center;
     font-size: 5em;
-    color: white;
+    color: #FF0075;
 }
 
 .pomodoro-card-footer {
