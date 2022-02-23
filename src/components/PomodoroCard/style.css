@@ -1,0 +1,31 @@
+/* Pomodoro Card */
+
+.pomodoro-card {
+    background-color: #EEE6CE;
+    border-radius: 0.5em;
+    width: clamp(300px, 30vw, 400px);
+    margin: 200px auto;
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+}
+
+.pomodoro-card-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.pomodoro-card-header-actions>button {
+    margin-left: 1em;
+}
+
+.pomodoro-timer {
+    text-align: center;
+    font-size: 5em;
+    color: white;
+}
+
+.pomodoro-card-footer {
+    display: flex;
+    justify-content: space-between;
+}
