@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
 import { PomodoroActionMap } from '../../interfaces';
 import './style.css';
 
@@ -14,8 +15,8 @@ const DEFAULT_ACTION_MAP: PomodoroActionMap = {
     onMount: () => { },
 }
 
-const DEFAULT_FOCUS_TIME = 1 * 60;
-const DEFAULT_BREAK_TIME = 5 * 60;
+const DEFAULT_FOCUS_TIME = 1 * 10;
+const DEFAULT_BREAK_TIME = 1 * 10;
 const INITIAL_STATE = PomodoroStates.STOP;
 
 
@@ -132,13 +133,19 @@ export function PomodoroCard() {
     const [contextColor, setContextColor] = useState<string>('#FF0075')
 
 
-    const { settings, quit, stop, focus, onMount } = getPomodoroActionMap(state, ref, setTime, setState);
+    const { settings, stop, focus, onMount } = getPomodoroActionMap(state, ref, setTime, setState);
 
     useEffect(() => {
-        if (state === PomodoroStates.FOCUS && time === 0) {
-            setState(PomodoroStates.DONE);
+        if (time === 0) {
+            if (state === PomodoroStates.FOCUS) {
+                setState(PomodoroStates.DONE);
+                toast("Focus time is over, take a break!", { type: 'success' });
+            } else if (state === PomodoroStates.BREAK) {
+                setState(PomodoroStates.STOP);
+                toast("Break time is over, back to focus!", { type: 'error' });
+            }
         }
-    }, [time]);
+    }, [time, state]);
 
 
     useEffect(() => {
@@ -157,7 +164,7 @@ export function PomodoroCard() {
         return () => {
             clearInterval(interval);
         }
-    }, [state]);
+    }, [state, onMount]);
 
     useEffect(() => {
         const body = document.querySelector('body');
@@ -182,7 +189,6 @@ export function PomodoroCard() {
                 <p className="pomodoro-card-header-title">Pomodoomer</p>
                 <div className='pomodoro-card-header-actions'>
                     <button onClick={() => { settings.action(); }} disabled={settings.disabled} className="pomodoro-button">{settings.title}</button>
-                    <button onClick={() => { quit.action(); }} disabled={quit.disabled} className="pomodoro-button">{quit.title}</button>
                 </div>
             </div>
             <div className='pomodoro-card-content'>
