@@ -1,10 +1,5 @@
-export interface PomodoroActionMap {
+export interface PomodoroStateMap {
     settings: {
-        disabled: boolean;
-        action: Function;
-        title: string;
-    },
-    quit: {
         disabled: boolean;
         action: Function;
         title: string;
