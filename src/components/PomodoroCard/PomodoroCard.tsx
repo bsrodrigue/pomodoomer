@@ -14,8 +14,8 @@ const EMPTY_STATE_MAP: PomodoroStateMap = {
     onMount: () => { },
 }
 
-const DEFAULT_FOCUS_TIME = 25 * 60;
-const DEFAULT_BREAK_TIME = 5 * 60;
+const DEFAULT_FOCUS_TIME = 1 * 60;
+const DEFAULT_BREAK_TIME = 1 * 60;
 const INITIAL_STATE = PomodoroState.STOP;
 
 
@@ -34,7 +34,7 @@ function getPomodoroStateMap(params: {
     }
 
     const stop = { disabled: false, action: onStop, title: "Stop" };
-    const settings = { disabled: false, action: onSettings, title: "Stop" };
+    const settings = { disabled: false, action: onSettings, title: "Settings" };
 
     switch (currentState) {
         case PomodoroState.STOP:
@@ -130,24 +130,52 @@ function getPomodoroStateMap(params: {
     }
 }
 
+function notify(notificationPermission: boolean, title: string, body: string = "Notification"): Notification | null {
+    let notification = null;
+    if (notificationPermission) {
+        notification = new Notification(title, {
+            body,
+        });
+    }
+    return notification;
+}
+
 export function PomodoroCard() {
     const timeRef = useRef<number>(DEFAULT_FOCUS_TIME);
     const [time, setTime] = useState<number>(DEFAULT_FOCUS_TIME);
     const [state, setState] = useState<number>(INITIAL_STATE);
     const [contextColor, setContextColor] = useState<string>('#FF0075')
+    const [permissions, setPermissions] = useState<any>({});
 
     const { settings, stop, focus, onMount } = getPomodoroStateMap({
         currentState: state, timeRef, setTime, setState
     });
 
     useEffect(() => {
+        document.title = "Pomodoomer";
+        async function requestNotificationPermission() {
+            const permission = await Notification.requestPermission();
+            permissions['notification'] = permission === 'granted';
+            setPermissions(permissions)
+        }
+
+        requestNotificationPermission();
+    }, []);
+
+
+
+    useEffect(() => {
+        const FOCUS_TIME_OVER_MSG = "Focus time is over, take a break!"
+        const BREAK_TIME_OVER_MSG = "Break time is over, back to work!"
         if (time === 0) {
             if (state === PomodoroState.FOCUS) {
                 setState(PomodoroState.DONE);
-                toast("Focus time is over, take a break!", { type: 'success' });
+                toast(FOCUS_TIME_OVER_MSG, { type: 'success' });
+                notify(permissions['notification'], FOCUS_TIME_OVER_MSG);
             } else if (state === PomodoroState.BREAK) {
                 setState(PomodoroState.STOP);
-                toast("Break time is over, back to focus!", { type: 'error' });
+                toast(BREAK_TIME_OVER_MSG, { type: 'error' });
+                notify(permissions['notification'], BREAK_TIME_OVER_MSG);
             }
         }
     }, [time, state]);
