@@ -20,10 +20,10 @@ const INITIAL_STATE = PomodoroState.STOP;
 
 
 function getPomodoroStateMap(params: {
-    currentState: PomodoroState, timeRef: any, setTime: Function, setState: Function
+    currentState: PomodoroState, setTime: Function, setState: Function
 }): PomodoroStateMap {
 
-    const { currentState, timeRef, setTime, setState } = params;
+    const { currentState, setTime, setState } = params;
 
     function onStop() {
         setState(PomodoroState.STOP);
@@ -47,8 +47,7 @@ function getPomodoroStateMap(params: {
                     }, title: "Focus"
                 },
                 onMount: () => {
-                    timeRef.current = DEFAULT_FOCUS_TIME;
-                    setTime(timeRef.current);
+                    setTime(DEFAULT_FOCUS_TIME);
                 },
             }
         case PomodoroState.FOCUS:
@@ -62,9 +61,7 @@ function getPomodoroStateMap(params: {
                 },
                 onMount: () => {
                     let interval = setInterval(() => {
-                        timeRef.current = timeRef.current - 1;
-                        setTime(timeRef.current);
-                        if (timeRef.current === 0) clearInterval(interval);
+                        setTime((time: number) => time - 1);
                     }, 1000);
                     return interval;
                 },
@@ -103,8 +100,7 @@ function getPomodoroStateMap(params: {
                     }, title: "Take a break"
                 },
                 onMount: () => {
-                    timeRef.current = DEFAULT_BREAK_TIME;
-                    setTime(timeRef.current);
+                    setTime(DEFAULT_BREAK_TIME);
                 },
             }
         case PomodoroState.BREAK:
@@ -118,9 +114,7 @@ function getPomodoroStateMap(params: {
                 },
                 onMount: () => {
                     let interval = setInterval(() => {
-                        timeRef.current = timeRef.current - 1;
-                        setTime(timeRef.current);
-                        if (timeRef.current === 0) clearInterval(interval);
+                        setTime((time: number) => time - 1);
                     }, 1000);
                     return interval;
                 },
@@ -151,14 +145,13 @@ function notify(notificationPermission: boolean, title: string, body: string = "
 }
 
 export function PomodoroCard() {
-    const timeRef = useRef<number>(DEFAULT_FOCUS_TIME);
     const [time, setTime] = useState<number>(DEFAULT_FOCUS_TIME);
     const [state, setState] = useState<number>(INITIAL_STATE);
     const [contextColor, setContextColor] = useState<string>('#FF0075')
     const [permissions, setPermissions] = useState<any>({});
 
     const { settings, stop, focus, onMount } = getPomodoroStateMap({
-        currentState: state, timeRef, setTime, setState
+        currentState: state, setTime, setState
     });
 
     const pageTitle = `Pomodoomer ${getClockString(time)}`;
