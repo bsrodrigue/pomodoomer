@@ -130,6 +130,16 @@ function getPomodoroStateMap(params: {
     }
 }
 
+function getClockString(time: number): string {
+    let minutes = (Math.trunc(time / 60)).toString();
+    let seconds = (time % 60).toString();
+
+    if (seconds.length === 1) {
+        seconds = seconds.padStart(2, '0');
+    }
+    return `${minutes}:${seconds}`;
+}
+
 function notify(notificationPermission: boolean, title: string, body: string = "Notification"): Notification | null {
     let notification = null;
     if (notificationPermission) {
@@ -151,8 +161,9 @@ export function PomodoroCard() {
         currentState: state, timeRef, setTime, setState
     });
 
+    const pageTitle = `Pomodoomer ${getClockString(time)}`;
+
     useEffect(() => {
-        document.title = "Pomodoomer";
         async function requestNotificationPermission() {
             const permission = await Notification.requestPermission();
             setPermissions((permissions: any) => {
@@ -162,7 +173,11 @@ export function PomodoroCard() {
         }
 
         requestNotificationPermission();
-    }, []);
+    }, [])
+
+    useEffect(() => {
+        document.title = pageTitle;
+    }, [pageTitle]);
 
 
 
@@ -209,12 +224,7 @@ export function PomodoroCard() {
 
 
 
-    let minutes = (Math.trunc(time / 60)).toString();
-    let seconds = (time % 60).toString();
 
-    if (seconds.length === 1) {
-        seconds = seconds.padStart(2, '0');
-    }
 
     return (
         <div className='pomodoro-card material-shadow'>
@@ -225,7 +235,7 @@ export function PomodoroCard() {
                 </div>
             </div>
             <div className='pomodoro-card-content'>
-                <p style={{ color: contextColor }} className="pomodoro-timer">{`${minutes}:${seconds}`}</p>
+                <p style={{ color: contextColor }} className="pomodoro-timer">{getClockString(time)}</p>
             </div>
             <div className='pomodoro-card-footer'>
                 <button onClick={() => { focus.action(); }} disabled={focus.disabled} className="pomodoro-button">{focus.title}</button>
