@@ -27,5 +27,9 @@
 
 .pomodoro-card-footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: left;
+}
+
+.pomodoro-card-footer button {
+    margin-right: 1em;
 }

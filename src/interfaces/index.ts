@@ -14,5 +14,10 @@ export interface PomodoroStateMap {
         action: Function;
         title: string;
     },
+    skip?: {
+        disabled: boolean;
+        action: Function;
+        title: string;
+    },
     onMount: Function;
 }

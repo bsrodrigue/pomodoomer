@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { PomodoroStateMap } from '../../interfaces';
 import './style.css';
+
+// Skippable states: FOCUS, BREAK
 
 enum PomodoroState {
     STOP, FOCUS, FOCUS_PAUSE, DONE, BREAK, BREAK_PAUSE
@@ -54,6 +56,13 @@ function getPomodoroStateMap(params: {
             return {
                 settings,
                 stop,
+                skip: {
+                    disabled: false,
+                    action: () => {
+                        setState(PomodoroState.DONE);
+                    },
+                    title: "Skip",
+                },
                 focus: {
                     disabled: false, action: () => {
                         setState(PomodoroState.FOCUS_PAUSE);
@@ -107,6 +116,13 @@ function getPomodoroStateMap(params: {
             return {
                 settings,
                 stop,
+                skip: {
+                    disabled: false,
+                    action: () => {
+                        setState(PomodoroState.STOP);
+                    },
+                    title: "Skip",
+                },
                 focus: {
                     disabled: false, action: () => {
                         setState(PomodoroState.BREAK_PAUSE);
@@ -150,7 +166,7 @@ export function PomodoroCard() {
     const [contextColor, setContextColor] = useState<string>('#FF0075')
     const [permissions, setPermissions] = useState<any>({});
 
-    const { settings, stop, focus, onMount } = getPomodoroStateMap({
+    const { settings, stop, focus, skip, onMount } = getPomodoroStateMap({
         currentState: state, setTime, setState
     });
 
@@ -172,8 +188,6 @@ export function PomodoroCard() {
         document.title = pageTitle;
     }, [pageTitle]);
 
-
-
     useEffect(() => {
         const FOCUS_TIME_OVER_MSG = "Focus time is over, take a break!"
         const BREAK_TIME_OVER_MSG = "Break time is over, back to work!"
@@ -193,14 +207,10 @@ export function PomodoroCard() {
     useEffect(() => {
         const interval = onMount();
         if (state === PomodoroState.DONE) {
+            if (interval) clearInterval(interval);
             setContextColor('#77D970');
-        } else if (state === PomodoroState.BREAK) {
-            setContextColor('#77D970');
-        }
-        else if (state === PomodoroState.BREAK_PAUSE) {
-            setContextColor('#77D970');
-        }
-        else {
+        } else if (state === PomodoroState.STOP) {
+            if (interval) clearInterval(interval);
             setContextColor('#FF0075');
         }
         return () => {
@@ -215,10 +225,6 @@ export function PomodoroCard() {
         }
     }, [contextColor]);
 
-
-
-
-
     return (
         <div className='pomodoro-card material-shadow'>
             <div className='pomodoro-card-header'>
@@ -232,6 +238,11 @@ export function PomodoroCard() {
             </div>
             <div className='pomodoro-card-footer'>
                 <button onClick={() => { focus.action(); }} disabled={focus.disabled} className="pomodoro-button">{focus.title}</button>
+                {
+                    skip && (
+                        <button onClick={() => { skip.action(); }} disabled={skip.disabled} className="pomodoro-button">{skip.title}</button>
+                    )
+                }
                 <button onClick={() => { stop.action(); }} disabled={stop.disabled} className="pomodoro-button">{stop.title}</button>
             </div>
         </div>
