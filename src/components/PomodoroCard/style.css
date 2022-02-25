@@ -3,7 +3,7 @@
 .pomodoro-card {
     background-color: white;
     border-radius: 0.5em;
-    width: clamp(400px, 30vw, 500px);
+    width: clamp(300px, 50vw, 500px);
     margin: 200px auto;
     padding: 1em;
     display: flex;
