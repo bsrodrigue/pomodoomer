@@ -155,8 +155,10 @@ export function PomodoroCard() {
         document.title = "Pomodoomer";
         async function requestNotificationPermission() {
             const permission = await Notification.requestPermission();
-            permissions['notification'] = permission === 'granted';
-            setPermissions(permissions)
+            setPermissions((permissions: any) => {
+                permissions['notification'] = permission === 'granted';
+                return permissions;
+            })
         }
 
         requestNotificationPermission();
@@ -178,7 +180,7 @@ export function PomodoroCard() {
                 notify(permissions['notification'], BREAK_TIME_OVER_MSG);
             }
         }
-    }, [time, state]);
+    }, [time, state, permissions]);
 
     useEffect(() => {
         const interval = onMount();
