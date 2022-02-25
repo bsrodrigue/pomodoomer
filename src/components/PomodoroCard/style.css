@@ -3,7 +3,7 @@
 .pomodoro-card {
     background-color: white;
     border-radius: 0.5em;
-    width: clamp(300px, 30vw, 400px);
+    width: clamp(400px, 30vw, 500px);
     margin: 200px auto;
     padding: 1em;
     display: flex;
@@ -17,6 +17,10 @@
 
 .pomodoro-card-header-actions>button {
     margin-left: 1em;
+}
+
+.pomodoro-card-content {
+    margin: 2em 0;
 }
 
 .pomodoro-timer {

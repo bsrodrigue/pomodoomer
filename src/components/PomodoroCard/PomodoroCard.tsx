@@ -16,8 +16,8 @@ const EMPTY_STATE_MAP: PomodoroStateMap = {
     onMount: () => { },
 }
 
-const DEFAULT_FOCUS_TIME = 1 * 60;
-const DEFAULT_BREAK_TIME = 1 * 60;
+const DEFAULT_FOCUS_TIME = 25 * 60;
+const DEFAULT_BREAK_TIME = 5 * 60;
 const INITIAL_STATE = PomodoroState.STOP;
 
 
@@ -36,7 +36,7 @@ function getPomodoroStateMap(params: {
     }
 
     const stop = { disabled: false, action: onStop, title: "Stop" };
-    const settings = { disabled: false, action: onSettings, title: "Settings" };
+    const settings = { disabled: true, action: onSettings, title: "Settings" };
 
     switch (currentState) {
         case PomodoroState.STOP:
