@@ -1,164 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { PomodoroStateMap } from '../../interfaces';
+import { PomodoroState } from '../../enums';
+import { getClockString, getPomodoroStateMap, notify } from '../../lib/utils';
+import { settings } from '../../settings';
 import './style.css';
 
-// Skippable states: FOCUS, BREAK
-
-enum PomodoroState {
-    STOP, FOCUS, FOCUS_PAUSE, DONE, BREAK, BREAK_PAUSE
-}
-
-const EMPTY_STATE_MAP: PomodoroStateMap = {
-    settings: { disabled: false, action: () => { }, title: "" },
-    stop: { disabled: false, action: () => { }, title: "" },
-    focus: { disabled: false, action: () => { }, title: "" },
-    onMount: () => { },
-}
-
-const DEFAULT_FOCUS_TIME = 25 * 60;
-const DEFAULT_BREAK_TIME = 5 * 60;
+const { DEFAULT_FOCUS_TIME } = settings;
 const INITIAL_STATE = PomodoroState.STOP;
-
-
-function getPomodoroStateMap(params: {
-    currentState: PomodoroState, setTime: Function, setState: Function
-}): PomodoroStateMap {
-
-    const { currentState, setTime, setState } = params;
-
-    function onStop() {
-        setState(PomodoroState.STOP);
-    }
-
-    function onSettings() {
-
-    }
-
-    const stop = { disabled: false, action: onStop, title: "Stop" };
-    const settings = { disabled: true, action: onSettings, title: "Settings" };
-
-    switch (currentState) {
-        case PomodoroState.STOP:
-            return {
-                settings,
-                stop,
-                focus: {
-                    disabled: false, action: () => {
-                        setState(PomodoroState.FOCUS);
-                    }, title: "Focus"
-                },
-                onMount: () => {
-                    setTime(DEFAULT_FOCUS_TIME);
-                },
-            }
-        case PomodoroState.FOCUS:
-            return {
-                settings,
-                stop,
-                skip: {
-                    disabled: false,
-                    action: () => {
-                        setState(PomodoroState.DONE);
-                    },
-                    title: "Skip",
-                },
-                focus: {
-                    disabled: false, action: () => {
-                        setState(PomodoroState.FOCUS_PAUSE);
-                    }, title: "Pause"
-                },
-                onMount: () => {
-                    let interval = setInterval(() => {
-                        setTime((time: number) => time - 1);
-                    }, 1000);
-                    return interval;
-                },
-            }
-        case PomodoroState.FOCUS_PAUSE:
-            return {
-                settings,
-                stop,
-                focus: {
-                    disabled: false, action: () => {
-                        setState(PomodoroState.FOCUS);
-                    }, title: "Resume focus"
-                },
-                onMount: () => {
-                },
-            }
-        case PomodoroState.BREAK_PAUSE:
-            return {
-                settings,
-                stop,
-                focus: {
-                    disabled: false, action: () => {
-                        setState(PomodoroState.BREAK);
-                    }, title: "Resume break"
-                },
-                onMount: () => {
-                },
-            }
-        case PomodoroState.DONE:
-            return {
-                settings,
-                stop,
-                focus: {
-                    disabled: false, action: () => {
-                        setState(PomodoroState.BREAK);
-                    }, title: "Take a break"
-                },
-                onMount: () => {
-                    setTime(DEFAULT_BREAK_TIME);
-                },
-            }
-        case PomodoroState.BREAK:
-            return {
-                settings,
-                stop,
-                skip: {
-                    disabled: false,
-                    action: () => {
-                        setState(PomodoroState.STOP);
-                    },
-                    title: "Skip",
-                },
-                focus: {
-                    disabled: false, action: () => {
-                        setState(PomodoroState.BREAK_PAUSE);
-                    }, title: "Pause"
-                },
-                onMount: () => {
-                    let interval = setInterval(() => {
-                        setTime((time: number) => time - 1);
-                    }, 1000);
-                    return interval;
-                },
-            }
-        default:
-            return EMPTY_STATE_MAP;
-    }
-}
-
-function getClockString(time: number): string {
-    let minutes = (Math.trunc(time / 60)).toString();
-    let seconds = (time % 60).toString();
-
-    if (seconds.length === 1) {
-        seconds = seconds.padStart(2, '0');
-    }
-    return `${minutes}:${seconds}`;
-}
-
-function notify(notificationPermission: boolean, title: string, body: string = "Notification"): Notification | null {
-    let notification = null;
-    if (notificationPermission) {
-        notification = new Notification(title, {
-            body,
-        });
-    }
-    return notification;
-}
 
 export function PomodoroCard() {
     const [time, setTime] = useState<number>(DEFAULT_FOCUS_TIME);
@@ -166,11 +14,16 @@ export function PomodoroCard() {
     const [contextColor, setContextColor] = useState<string>('#FF0075')
     const [permissions, setPermissions] = useState<any>({});
 
-    const { settings, stop, focus, skip, onMount } = getPomodoroStateMap({
-        currentState: state, setTime, setState
-    });
 
-    const pageTitle = `Pomodoomer ${getClockString(time)}`;
+    const stateMap = useCallback(() => {
+        return getPomodoroStateMap({
+            currentState: state, setTime, setState
+        });
+    }, [state]);
+
+    const { stop, settings, skip, focus, onMount } = stateMap();
+
+    document.title = `Pomodoomer ${getClockString(time)}`;
 
     useEffect(() => {
         async function requestNotificationPermission() {
@@ -183,10 +36,6 @@ export function PomodoroCard() {
 
         requestNotificationPermission();
     }, [])
-
-    useEffect(() => {
-        document.title = pageTitle;
-    }, [pageTitle]);
 
     useEffect(() => {
         const FOCUS_TIME_OVER_MSG = "Focus time is over, take a break!"
@@ -207,10 +56,8 @@ export function PomodoroCard() {
     useEffect(() => {
         const interval = onMount();
         if (state === PomodoroState.DONE) {
-            if (interval) clearInterval(interval);
             setContextColor('#77D970');
         } else if (state === PomodoroState.STOP) {
-            if (interval) clearInterval(interval);
             setContextColor('#FF0075');
         }
         return () => {
