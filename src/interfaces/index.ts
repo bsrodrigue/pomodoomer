@@ -19,5 +19,25 @@ export interface PomodoroStateMap {
         action: Function;
         title: string;
     },
+    save?: {
+        disabled: boolean;
+        action: Function;
+        title: string;
+    }
     onMount: Function;
+}
+
+export interface TimeSettings {
+    focus: {
+        minutes: number;
+        seconds: number;
+    }
+    break: {
+        minutes: number;
+        seconds: number;
+    }
+}
+
+export interface PermissionMap {
+    [permission: string]: boolean;
 }

@@ -1,9 +1,13 @@
 export function notify(notificationPermission: boolean, title: string, body: string = "Notification"): Notification | null {
     let notification = null;
-    if (notificationPermission) {
-        notification = new Notification(title, {
-            body,
-        });
+    try {
+        if (notificationPermission) {
+            notification = new Notification(title, {
+                body,
+            });
+        }
+    } catch (error) {
+        alert(error);
     }
     return notification;
 }

@@ -1,9 +1,6 @@
 import { PomodoroState } from "../../enums";
 import { PomodoroStateMap } from "../../interfaces";
-import { settings } from "../../settings";
-
-
-const { DEFAULT_BREAK_TIME, DEFAULT_FOCUS_TIME } = settings;
+import { settings as env } from "../../settings";
 
 const EMPTY_STATE_MAP: PomodoroStateMap = {
     settings: { disabled: false, action: () => { }, title: "" },
@@ -16,6 +13,9 @@ export function getPomodoroStateMap(params: {
     currentState: PomodoroState, setTime: Function, setState: Function
 }): PomodoroStateMap {
 
+    const localStorage = window.localStorage;
+    const DEFAULT_FOCUS_TIME = parseInt(localStorage.getItem('DEFAULT_FOCUS_TIME') || '0') || env.DEFAULT_FOCUS_TIME;
+    const DEFAULT_BREAK_TIME = parseInt(localStorage.getItem('DEFAULT_BREAK_TIME') || '0') || env.DEFAULT_BREAK_TIME;
     const { currentState, setTime, setState } = params;
 
     function onStop() {
@@ -32,7 +32,13 @@ export function getPomodoroStateMap(params: {
     switch (currentState) {
         case PomodoroState.STOP:
             return {
-                settings,
+                settings: {
+                    disabled: false,
+                    action: () => {
+                        setState(PomodoroState.SETTINGS);
+                    },
+                    title: "Settings",
+                },
                 stop,
                 focus: {
                     disabled: false, action: () => {
@@ -126,6 +132,37 @@ export function getPomodoroStateMap(params: {
                     return interval;
                 },
             }
+        case PomodoroState.SETTINGS:
+            return {
+                ...EMPTY_STATE_MAP,
+                settings: {
+                    disabled: true,
+                    action: () => { },
+                    title: "Settings"
+                },
+                save: {
+                    disabled: false,
+                    action: (timeSettings: any) => {
+                        const focusMins = parseInt(timeSettings['focus'].minutes);
+                        const focusSecs = parseInt(timeSettings['focus'].seconds);
+                        const breakMins = parseInt(timeSettings['break'].minutes);
+                        const breakSecs = parseInt(timeSettings['break'].seconds);
+
+                        if ([focusMins, focusSecs, breakMins, breakSecs].some((value) => value === undefined)) {
+                            return;
+                        }
+
+                        const newFocusTime = (focusMins * 60) + focusSecs;
+                        const newBreakTime = (breakMins * 60) + breakSecs;
+
+                        localStorage.setItem('DEFAULT_FOCUS_TIME', newFocusTime.toString());
+                        localStorage.setItem('DEFAULT_BREAK_TIME', newBreakTime.toString());
+
+                        setState(PomodoroState.STOP);
+                    },
+                    title: "Save",
+                }
+            };
         default:
             console.warn("Unknown state: ", currentState);
             return EMPTY_STATE_MAP;

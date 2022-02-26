@@ -5,7 +5,7 @@
     border-radius: 0.5em;
     width: clamp(300px, 50vw, 500px);
     margin: 200px auto;
-    padding: 1em;
+    padding: 1em 2em;
     display: flex;
     flex-direction: column;
 }
@@ -36,4 +36,38 @@
 
 .pomodoro-card-footer button {
     margin-right: 1em;
+}
+
+
+/* Pomodoro Card - Settings */
+
+.pomodoro-card-settings {
+    margin: 1em 0;
+}
+
+.pomodoro-card-settings small {
+    margin-bottom: 0.5em;
+}
+
+.pomodoro-card-settings-input {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1em;
+}
+
+.pomodoro-card-settings input {
+    flex-grow: 1;
+    text-align: center;
+    border: none;
+    border-radius: 1em;
+    background-color: #FF0075;
+    color: white;
+    font-weight: bold;
+    padding: 1em;
+    margin: 1em 0;
+}
+
+.pomodoro-card-settings input:focus {
+    outline: none;
 }
