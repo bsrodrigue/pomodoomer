@@ -98,7 +98,13 @@ export function getPomodoroStateMap(params: {
             }
         case PomodoroState.DONE:
             return {
-                settings,
+                settings: {
+                    disabled: false,
+                    action: () => {
+                        setState(PomodoroState.SETTINGS);
+                    },
+                    title: "Settings",
+                },
                 stop,
                 focus: {
                     disabled: false, action: () => {

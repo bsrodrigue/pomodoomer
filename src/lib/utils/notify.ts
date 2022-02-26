@@ -2,15 +2,12 @@ export function notify(notificationPermission: boolean, title: string, body: str
     let notification = null;
     try {
         if (notificationPermission) {
-            navigator.serviceWorker.register('sw.js');
-            navigator.serviceWorker.ready.then(function (registration) {
-                registration.showNotification(title, {
-                    body,
-                });
+            notification = new Notification(title, {
+                body,
             });
         }
     } catch (error) {
-        alert(error);
+        console.error(error);
     }
     return notification;
 }

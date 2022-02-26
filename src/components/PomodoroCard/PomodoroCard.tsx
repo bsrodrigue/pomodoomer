@@ -95,6 +95,7 @@ export function PomodoroCard() {
                                         type="number" placeholder='minutes' />
                                     <input
                                         min={0}
+                                        max={60}
                                         onChange={(e: any) => { setTimeSettings((settings: any) => { settings.focus.seconds = e.target.value; return settings; }) }}
                                         type="number" placeholder='seconds' />
                                 </div>
@@ -108,6 +109,7 @@ export function PomodoroCard() {
                                         type="number" placeholder='minutes' />
                                     <input
                                         min={0}
+                                        max={60}
                                         onChange={(e: any) => { setTimeSettings((settings: any) => { settings.break.seconds = e.target.value; return settings; }) }}
                                         type="number" placeholder='seconds' />
                                 </div>
